@@ -3,6 +3,22 @@
 
 import pandas as pd
 import json
+from modal import Table
+from sqlalchemy.ext.declarative import declarative_base
+
+def load_data(table_name, df, session_db, engine_db):
+
+    try:
+        df.to_sql(table_name, engine_db, index=False, if_exists='append') # transform in sql
+        print('\nData loaded on database')
+
+    except Exception as err:
+        print(f"\nFail to load data on database: {err}")
+    
+    session_db.commit()
+    session_db.close() # shutdown the session
+    print("\nClose database successfully")
+    return session_db
 
 # reading data in json file
 with open('data/teams.json') as json_file:
@@ -31,3 +47,12 @@ nba_dict = {
 
 nba_df = pd.DataFrame(nba_dict, columns=['name','abbrevition','conference','city'])
 print(nba_df)
+
+# declarative base
+# Base = declarative_base()
+
+# Construct the table
+get_session_db, get_engine = Table.start()
+
+# call the function to load data on database
+load_data(table_name='tb_nba', df=nba_df, session_db=get_session_db, engine_db=get_engine)
