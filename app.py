@@ -3,8 +3,7 @@
 
 import pandas as pd
 import json
-from modal import Table
-from sqlalchemy.ext.declarative import declarative_base
+from modal import Franchise
 
 def load_data(table_name, df, session_db, engine_db):
 
@@ -29,6 +28,7 @@ name = []
 abbreviation = []
 conference = []
 city = []
+# division = []
 
 # writing data in a new variable
 for d in data['data']:
@@ -36,23 +36,22 @@ for d in data['data']:
     abbreviation.append(d['abbreviation'])
     conference.append(d['conference'])
     city.append(d['city'])
+    # division.append(d['division'])
 
-# structure data
+# structure data in a dicionary
 nba_dict = {
     "name": name,
     "abbreviation": abbreviation,
     "conference": conference,
-    "city": city
+    "city": city,
+    # "division": division
 }
 
-nba_df = pd.DataFrame(nba_dict, columns=['name','abbrevition','conference','city'])
+nba_df = pd.DataFrame(nba_dict, columns=['name','abbreviation','conference','city'])
 print(nba_df)
 
-# declarative base
-# Base = declarative_base()
-
 # Construct the table
-get_session_db, get_engine = Table.start()
+get_session_db, get_engine = Franchise.start()
 
 # call the function to load data on database
 load_data(table_name='tb_nba', df=nba_df, session_db=get_session_db, engine_db=get_engine)
